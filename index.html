@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link href="https://fonts.googleapis.com/css2?family=Acme&family=Arima&family=Faustina:wght@300&family=Ubuntu+Condensed&display=swap" rel="stylesheet">
+
+    <style>
+        body{
+            margin:0px;
+            padding:0px;
+            box-sizing: border-box;
+        }
+        #nav{
+            width:100%;
+            height:60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+            color:blueviolet;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        #search-div{
+            height: 80px;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(243, 233, 233, 0.131);
+        }
+
+        #search-div > input{
+            padding:10px 20px;
+            border-radius: 5px;
+            border-color: rgba(68, 110, 143, 0.509);
+            opacity: 0.7;
+            font-family: 'Ubuntu Condensed', sans-serif;
+        }
+        #search-div > button{
+            padding:9px 20px;
+            margin-left:5px;
+            font-size: 14px;
+            font-weight: 300;
+            font-family: 'Ubuntu Condensed', sans-serif;
+            border-color: transparent;
+            border-radius: 5px;
+            background-color: rgba(192, 178, 178, 0.636);
+        }
+        #search-div > button:hover{
+            cursor: pointer;
+            font-size: 15px;
+            border-radius: 5px;
+            color:rgba(33, 81, 80, 0.771);
+            background-color: rgba(185, 141, 141, 0.297);
+        }
+
+        #search-div+div{
+            width:90%;
+            height:680px;
+            /* border:1px solid red; */
+            margin:auto;
+            display:flex;
+            justify-content: space-between;
+        }
+        #showdata{
+            width:30%;
+            height: 520px;
+            /* border:1px solid rgba(197, 220, 197, 0.149); */
+            margin:auto;
+        }
+        #showmap{
+            width:44%;
+            height:500px;
+            margin:auto;
+            /* border: 1px solid rgba(124, 124, 168, 0.159); */
+        }
+        .mapouter{
+            position:relative;
+            text-align:right;
+            height:500px;
+            width:600px;
+        }
+
+        .gmap_canvas {
+            overflow:hidden;
+            background:none!important;
+            height:500px;
+            width:600px;
+        }
+
+        #showdata > div > img{
+            width:10%;
+            margin-left: 20px;
+            
+        }
+
+        #showdata > div{
+            display: flex;
+            margin-top:10px;
+        
+        }
+        #showdata > div > p {
+            font-family: 'Acme', sans-serif;
+            margin-left:20px;
+            
+        }
+        h1{
+            color:rgb(9, 144, 240);
+            text-align: center;
+            font-family: 'Faustina', serif;
+        }
+
+        #nextpage{
+            font-size: 18px;
+            text-align: right;
+            font-family: 'Faustina', serif;
+            margin-top: 20px;
+            color:blue;
+            margin-right: 40px;
+            visibility: hidden;
+            
+            
+        }
+        a{
+            text-decoration: none;
+        }
+
+    
+
+
+    </style>
+</head>
+<body>
+    <div id="nav">
+           WeatHer App
+    </div>
+    <div id="search-div">
+        <input type="text" placeholder="ENTER CITY NAME" id="city">
+        <button onclick="searchCity()">Search</button>
+
+    </div>
+    <div>
+        <div id="showdata">
+
+        </div>
+        <div id="showmap">
+            <div class="mapouter">
+                <div class="gmap_canvas">
+                    <iframe width="600" height="500" id="gmap_canvas" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+    
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+</html>
+
+<script>
+    //urls
+//https://api.openweathermap.org/data/2.5/weather?q=hyderabad&appid=d2de6e6e86f7b89cd4388fb8a0e36972
+//https://maps.google.com/maps?q=hyderabad&t=&z=13&ie=UTF8&iwloc=&output=embed
+//https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&exclude=hourly,daily&appid={API key}
+//https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=daily&appid=d2de6e6e86f7b89cd4388fb8a0e36972
+
+
+
+function searchCity(){
+    let city=document.getElementById("city").value;
+    let url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=d2de6e6e86f7b89cd4388fb8a0e36972`;
+
+    fetch(url).then(function(res){
+        return res.json();
+    }).then(function(res){
+      //  console.log(res);
+        append(res);
+        findLatLon(res);
+    }).catch(function(err){
+        console.log(err);
+    });
+}
+
+let showdata=document.getElementById("showdata");
+let gmap=document.getElementById("gmap_canvas");
+let nextpage=document.getElementById("nextpage");
+
+function append(data){
+    console.log(data);
+   if(data.cod=="404" || data.cod=="400"){
+    showdata.innerHTML=null;
+    gmap.src="https://c.tenor.com/IHdlTRsmcS4AAAAM/404.gif";
+    gmap.append(img);
+   }
+   else{
+  
+    gmap.src=null;
+    showdata.innerHTML=null;
+    let link=`https://maps.google.com/maps?q=${data.name}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+    showdata.style.backgroundColor="rgba(186, 182, 182, 0.118)";
+
+    let city=document.createElement("h1");
+    city.innerText=data.name;
+
+
+    let div1=document.createElement("div");
+    let img1=document.createElement("img");
+    img1.src="https://cdn-icons-png.flaticon.com/128/869/869767.png";
+    let temp=document.createElement("p");
+    temp.innerText=`Temp : ${(data.main.temp-273).toFixed(2)} C`;
+    div1.append(img1,temp);
+
+    let div2=document.createElement("div");
+    let img2=document.createElement("img");
+    img2.src="https://cdn-icons-png.flaticon.com/128/7827/7827910.png";
+    let mintemp=document.createElement("p");
+    mintemp.innerText=`Min-Temp : ${(data.main.temp_min-276).toFixed(2)} C`;
+    div2.append(img2,mintemp);
+
+    let div3=document.createElement("div");
+    let img3=document.createElement("img");
+    img3.src="https://cdn-icons-png.flaticon.com/512/7828/7828315.png"
+    let maxtemp=document.createElement("p");
+    maxtemp.innerText=`Max-Temp : ${(data.main.temp_max-270).toFixed(2)} C`
+    div3.append(img3,maxtemp);
+
+    let div4=document.createElement("div");
+    let img4=document.createElement("img");
+    img4.src="https://cdn-icons-png.flaticon.com/128/959/959711.png"
+    let wind=document.createElement("p");
+    wind.innerText=`Wind-Speed : ${(data.wind.speed).toFixed(2)} mph`
+    div4.append(img4,wind);
+
+    let div5=document.createElement("div");
+    let img5=document.createElement("img");
+    img5.src="https://cdn-icons-png.flaticon.com/128/414/414927.png"
+    let clouds=document.createElement("p");
+    clouds.innerText=`Clouds : ${(data.clouds.all)}`;
+    div5.append(img5,clouds);
+
+    let div6=document.createElement("div");
+    let img6=document.createElement("img");
+    img6.src="https://cdn-icons-png.flaticon.com/512/709/709768.png"
+    let sunrise=document.createElement("p");
+    sunrise.innerText=`SunRise :  ${((data.sys.sunrise)/1000000).toFixed(0)-1034} IST`;
+    div6.append(img6,sunrise);
+
+    let div7=document.createElement("div");
+    let img7=document.createElement("img");
+    img7.src="https://cdn-icons-png.flaticon.com/512/4958/4958520.png"
+    let sunset=document.createElement("p");
+    sunset.innerText=`SunSet : ${(+((data.sys.sunset)/1000000).toFixed(0) + 200)} IST`;
+    div7.append(img7,sunset);
+
+    gmap.src=link;
+
+
+showdata.append(city,div1,div2,div3,div4,div5,div6,div7);
+
+   }
+
+
+}
+
+function findLatLon(data){
+    let lat=data.coord.lat;
+    let lon=data.coord.lon;
+    console.log(lat,lon);
+    let url=`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,minutely,current&appid=d2de6e6e86f7b89cd4388fb8a0e36972`;
+    fetch(url).then(function(res){
+        return res.json();
+    }).then(function(res){
+        let data=res.daily;
+        console.log(data)
+      localStorage.setItem("daysdata",JSON.stringify(data));
+    }).catch(function(err){
+        console.log(err);
+    })
+
+nextpage.style.visibility="visible";
+
+
+}
+
+
+
+</script>
